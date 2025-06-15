@@ -1,12 +1,15 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String username;
     private final List<Message> messages;
     private final List<Channel> channels;
@@ -15,7 +18,6 @@ public class User extends BaseEntity {
         super();
         this.username = name;
 
-        //추가
         this.messages = new ArrayList<Message>();
         this.channels = new ArrayList<Channel>();
     }
