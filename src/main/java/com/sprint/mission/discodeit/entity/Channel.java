@@ -1,70 +1,72 @@
 package com.sprint.mission.discodeit.entity;
-import java.io.Serial;
+
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-public class Channel extends BaseEntity implements Serializable {
-    @Serial
+@Getter
+public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String title;
-    private final List<Message> messages;
-    private final List<User> users;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
 
-    public Channel(String channel) {
-        super();
-        this.title = channel;
+    private ChannelType type;
+    private String name;
+    private String description;
+    private List<UUID> userIds = new ArrayList<>();
 
-        this.messages = new ArrayList<>();
-        this.users = new ArrayList<>();
+    public Channel(String name, String description, ChannelType type) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public void addUsers(UUID userId){
+        userIds.add(userId);
     }
 
-    public String getChannel() {
-        return title;
+    public void setUpdatedAt() {
+        this.updatedAt = Instant.now();
     }
 
-    public void updateChannel(String updateChannel){
-        this.title = updateChannel;
-        updateTimeStamp();
-    }
-
-    public void addUser(User user){
-        if(!users.contains(user)) {
-            users.add(user);
-            user.addChannel(this);
+    public void setChannel(String name, String description) {
+        if(name != null & !Objects.requireNonNull(name).equals(this.name)){
+            this.name = name;
+        }else{
+            throw new IllegalArgumentException("입력한 채널 이름 : " + name + "이 기존 값과 같습니다.");
         }
-    }
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addChannel(this);
+
+        if(description != null & !Objects.requireNonNull(description).equals(this.description)){
+            this.description = description;
+        }else{
+            throw new IllegalArgumentException("입력한 설명 : " + description + "이 기존 값과 같습니다.");
         }
-    }
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)){
-            messages.remove(message);
-            message.deleteChannel(this);
-        }
+        setUpdatedAt();
     }
 
-    public void deleteUser(User user){
-        if(!users.contains(user)){
-            users.remove(user);
-            user.deleteChannel(this);
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
         }
-    }
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
+        }
 
-    public List<Message> getMessages(){
-        return messages;
-    }
-
-    @Override
-    public UUID getId(){
-        return super.getId();
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }

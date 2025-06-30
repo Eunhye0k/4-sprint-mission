@@ -1,65 +1,112 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 
 public class FileUserRepository implements UserRepository {
-    private final String filePath = "users.ser";
+    private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    public User getUser(UUID id) {
-        Map<UUID, User> data = readUserFile();
-        return findByUserId(id, data).orElse(null);
-    }
-
-    public List<User> getUsers() {
-        Map<UUID, User> data = readUserFile();
-        return new ArrayList<>(data.values());
-    }
-
-    public Optional<User> findByUserId(UUID id , Map<UUID, User> data) {
-        return Optional.ofNullable(data.get(id));
-    }
-
-    public Optional<User> findByUserId(UUID id) {
-        Map<UUID, User> data = readUserFile();
-        return findByUserId(id, data);
-    }
-
-    public void save(User user){
-        Map<UUID, User> data = readUserFile();
-        data.put(user.getId(), user);
-        writeUserFile(data);
-    }
-
-    public void delete(UUID id){
-        Map<UUID, User> data = readUserFile();
-        if(data.containsKey(id)) {
-            data.remove(id);
-            writeUserFile(data);
-        }else{
-            System.out.println("삭제할 유저가 존재하지 않습니다.");
+    public FileUserRepository() {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), "file-data-map", User.class.getSimpleName());
+        if (Files.notExists(DIRECTORY)) {
+            try {
+                Files.createDirectories(DIRECTORY);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    //유저 파일 READ
-    @SuppressWarnings("unchecked")
-    private Map<UUID, User> readUserFile() {
-        try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))){
-            return (Map<UUID, User>) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            return new HashMap<>();
-        }
+    private Path resolvePath(UUID id) {
+        return DIRECTORY.resolve(id + EXTENSION);
     }
 
-    //유저 파일에 WRITE
-    private void writeUserFile(Map<UUID, User> data) {
-        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("users.ser"))){
-            out.writeObject(data);
+    @Override
+    public User save(User user) {
+        Path path = resolvePath(user.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(user);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        User userNullable = null;
+        Path path = resolvePath(id);
+        if (Files.exists(path)) {
+            try (
+                    FileInputStream fis = new FileInputStream(path.toFile());
+                    ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+                userNullable = (User) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.ofNullable(userNullable);
+    }
+
+    @Override
+    public List<User> findAll() {
+        try {
+            return Files.list(DIRECTORY)
+                    .filter(path -> path.toString().endsWith(EXTENSION))
+                    .map(path -> {
+                        try (
+                                FileInputStream fis = new FileInputStream(path.toFile());
+                                ObjectInputStream ois = new ObjectInputStream(fis)
+                        ) {
+                            return (User) ois.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        Path path = resolvePath(id);
+        return Files.exists(path);
+    }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        Path path = resolvePath(id);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return id;
+    }
+
+    @Override
+    public UUID update(User userStatus) {
+        Path path = resolvePath(userStatus.getId());
+
+
+        return null;
     }
 }

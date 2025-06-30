@@ -1,69 +1,88 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-public class User extends BaseEntity implements Serializable {
-    @Serial
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
+
+@Getter
+public class User implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private UUID profileId;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String username;
-    private final List<Message> messages;
-    private final List<Channel> channels;
+    private String email;
+    private String password;
 
-    public User(String name) {
-        super();
-        this.username = name;
-
-        this.messages = new ArrayList<Message>();
-        this.channels = new ArrayList<Channel>();
+    public User(String username, String email, String password) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public void setUpdatedAt() {
+        this.updatedAt = updatedAt;
     }
 
-    public void updateName(String userName){
-        this.username = userName;
-    }
-
-    //유저의 Message 목록에 추가
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addUser(this);
+    public void setUser(String username, String email){
+        if(username != null && !username.equals(this.username)){
+            this.username = username;
+        }else{
+            throw new IllegalArgumentException("입력한 Username : "+ username + "이 기존 값과 같습니다.");
         }
-    }
 
-    //유저의 Channel 목록에 추가
-    public void addChannel(Channel channel){
-        if(!channels.contains(channel)) {
-            channels.add(channel);
-            channel.addUser(this);
+        if(email != null && !email.equals(this.email)){
+            this.email = email;
+        }else{
+            throw new IllegalArgumentException("입력한 Email : " + email + "이 기존 값과 같습니다.");
         }
+        setUpdatedAt();
     }
 
-    public void deleteChannel(Channel channel){
-        if(!channels.contains(channel)){
-            channels.remove(channel);
-            channel.deleteUser(this);
+    public void setUsername(String username){
+        if(username == null && username.equals(this.username)){
+            throw new IllegalArgumentException("입력한 값이 null 혹은 중복입니다.");
         }
+        this.username = username;
+        setUpdatedAt();
     }
 
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.remove(message);
-            message.deleteUser(this);
+    public void setEmail(String email){
+        if(email == null && email.equals(this.email)){
+            throw new IllegalArgumentException("입력한 값이 null 혹은 중복입니다.");
         }
-    }
-    public List<Channel> getChannels(){
-        return channels;
+        this.email = email;
+        setUpdatedAt();
     }
 
-    public List<Message> getMessages(){
-        return messages;
+    public void update(String newUsername, String newEmail, String newPassword) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
+        }
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
+        }
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+
+
     }
 }

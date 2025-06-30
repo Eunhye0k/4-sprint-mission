@@ -1,48 +1,72 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Message extends BaseEntity implements Serializable {
-    @Serial
+@Getter
+@Setter
+public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String content;
-    private User user;
-    private Channel channel;
+    //
+    private UUID channelId;
+    private UUID authorId;
+    List<UUID> binaryContentId;
 
-    public Message(String content, User user, Channel channel) {
-        super();
+    public Message(String content, UUID channelId, UUID authorId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
         this.content = content;
-        this.user = user;
-        this.channel = channel;
+        this.channelId = channelId;
+        this.authorId = authorId;
+        binaryContentId = new ArrayList<>();
     }
 
-    public String getContent() {
-        return content;
+    public void setUpdatedAt() {
+        this.updatedAt = Instant.now();
     }
 
-    public void addUser(User user){
-        this.user = user;
+    public void setMessage(String content){
+        if(content != null && !content.equals(this.content)){
+            this.content = content;
+        }else{
+            throw new IllegalArgumentException("입력한 메세지 : " + content + "가 기존과 같습니다.");
+        }
+        setUpdatedAt();
     }
 
-    public void deleteUser(User user){
-        this.user = user;
+    public static boolean validation(String content){
+        if(content == null || content.isEmpty()){
+            return false;
+        }
+        return true;
     }
 
-    public void addChannel(Channel channel){
-        this.channel = channel;
+    public void addBinaryContent(UUID attachmentId){
+        binaryContentId.add(attachmentId);
     }
 
-    public void deleteChannel(Channel channel){
-        this.channel = channel;
-    }
+    public void update(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
 
-    public void updateContent(String newContent){
-        this.content = newContent;
-        updateTimeStamp();
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
-
 }

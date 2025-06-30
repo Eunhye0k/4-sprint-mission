@@ -1,36 +1,51 @@
-/*package com.sprint.mission.discodeit.repository.jcf;
+package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class JCFUserRepository implements UserRepository {
-    private final Map<UUID , User> data = new HashMap<>();
+    private final Map<UUID, User> data;
 
-    @Override
-    public User getUser(UUID id){
-        Optional<User> optionalUser = validationId(id);
-        if (optionalUser.isPresent()) {
-            return optionalUser.get();
-        } else {
-            System.out.println("존재하지 않는 아이디입니다.");
-            return null;
-        }
+    public JCFUserRepository() {
+        this.data = new HashMap<>();
     }
 
     @Override
-    public List<User> getUsers(){
-        return new ArrayList<>(data.values());
+    public User save(User user) {
+        this.data.put(user.getId(), user);
+        return user;
     }
 
-    public Optional<User> findByUserId(UUID id) {
-        return Optional.ofNullable(data.get(id));
+    @Override
+    public Optional<User> findById(UUID id) {
+        return Optional.ofNullable(this.data.get(id));
     }
 
-    public Optional<User> validationId(UUID id){
-        return Optional.ofNullable(data.get(id));
+    @Override
+    public List<User> findAll() {
+        return this.data.values().stream().toList();
     }
+
+    @Override
+    public UUID update(User user) {
+        data.put(user.getId(), user);
+        return user.getId();
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return this.data.containsKey(id);
+    }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        return this.data.remove(id).getId();
+    }
+
 
 }
-*/
