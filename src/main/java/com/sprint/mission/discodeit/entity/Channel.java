@@ -1,70 +1,44 @@
 package com.sprint.mission.discodeit.entity;
-import java.io.Serial;
+
+import lombok.Getter;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Channel extends BaseEntity implements Serializable {
-    @Serial
+@Getter
+public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String title;
-    private final List<Message> messages;
-    private final List<User> users;
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
+    private ChannelType type;
+    private String name;
+    private String description;
 
-    public Channel(String channel) {
-        super();
-        this.title = channel;
-
-        this.messages = new ArrayList<>();
-        this.users = new ArrayList<>();
+    public Channel(ChannelType type, String name, String description) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public String getChannel() {
-        return title;
-    }
-
-    public void updateChannel(String updateChannel){
-        this.title = updateChannel;
-        updateTimeStamp();
-    }
-
-    public void addUser(User user){
-        if(!users.contains(user)) {
-            users.add(user);
-            user.addChannel(this);
+    public void update(String newName, String newDescription) {
+        boolean anyValueUpdated = false;
+        if (newName != null && !newName.equals(this.name)) {
+            this.name = newName;
+            anyValueUpdated = true;
         }
-    }
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addChannel(this);
+        if (newDescription != null && !newDescription.equals(this.description)) {
+            this.description = newDescription;
+            anyValueUpdated = true;
         }
-    }
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)){
-            messages.remove(message);
-            message.deleteChannel(this);
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
         }
-    }
-
-    public void deleteUser(User user){
-        if(!users.contains(user)){
-            users.remove(user);
-            user.deleteChannel(this);
-        }
-    }
-
-    public List<Message> getMessages(){
-        return messages;
-    }
-
-    @Override
-    public UUID getId(){
-        return super.getId();
     }
 }

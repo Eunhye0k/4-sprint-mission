@@ -1,69 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import lombok.Getter;
 
-public class User extends BaseEntity implements Serializable {
-    @Serial
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
+
+@Getter
+public class User implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    private UUID id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    //
     private String username;
-    private final List<Message> messages;
-    private final List<Channel> channels;
+    private String email;
+    private String password;
+    private UUID profileId;     // BinaryContent
 
-    public User(String name) {
-        super();
-        this.username = name;
-
-        this.messages = new ArrayList<Message>();
-        this.channels = new ArrayList<Channel>();
+    public User(String username, String email, String password, UUID profileId) {
+        this.id = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        //
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.profileId = profileId;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void updateName(String userName){
-        this.username = userName;
-    }
-
-    //유저의 Message 목록에 추가
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addUser(this);
+    public void update(String newUsername, String newEmail, String newPassword, UUID newProfileId) {
+        boolean anyValueUpdated = false;
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            anyValueUpdated = true;
         }
-    }
-
-    //유저의 Channel 목록에 추가
-    public void addChannel(Channel channel){
-        if(!channels.contains(channel)) {
-            channels.add(channel);
-            channel.addUser(this);
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            anyValueUpdated = true;
         }
-    }
-
-    public void deleteChannel(Channel channel){
-        if(!channels.contains(channel)){
-            channels.remove(channel);
-            channel.deleteUser(this);
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+            anyValueUpdated = true;
         }
-    }
-
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.remove(message);
-            message.deleteUser(this);
+        if (newProfileId != null && !newProfileId.equals(this.profileId)) {
+            this.profileId = newProfileId;
+            anyValueUpdated = true;
         }
-    }
-    public List<Channel> getChannels(){
-        return channels;
-    }
 
-    public List<Message> getMessages(){
-        return messages;
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 }
