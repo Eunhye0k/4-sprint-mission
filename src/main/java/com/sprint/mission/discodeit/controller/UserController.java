@@ -245,7 +245,7 @@ public class UserController {
   }
 
 
-  //추후 @GlobalExceptionHandler 에서 예외처리 진행
+  //추후 @GlobalExceptionHandler 에서 예외처리 진행cd 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
     if (profileFile.isEmpty()) {
       return Optional.empty();
