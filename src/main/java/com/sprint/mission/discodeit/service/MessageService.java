@@ -1,21 +1,23 @@
-//package com.sprint.mission.discodeit.service;
-//
-//import com.sprint.mission.discodeit.entity.Channel;
-//import com.sprint.mission.discodeit.entity.Message;
-//import com.sprint.mission.discodeit.entity.User;
-//
-//import java.util.List;
-//import java.util.Map;
-//import java.util.Optional;
-//import java.util.UUID;
-//
-//public interface MessageService {
-//    Message createMessage(Message create, User user, Channel channel);
-//    Message getMessage(UUID id);
-//    List<Message> getMessages();
-//    void updateMessage (UUID id, String message);
-//    void deleteMessage (UUID id);
-//    Optional<Message> findByMessage(String content);
-//    Optional<Message> validationMessage(UUID id, Map<UUID, Message> data);
-//
-//}
+package com.sprint.mission.discodeit.service;
+
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.entity.Message;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface MessageService {
+
+  Message create(MessageCreateRequest messageCreateRequest,
+      List<BinaryContentCreateRequest> binaryContentCreateRequests);
+
+  Message find(UUID messageId);
+
+  List<Message> findAllByChannelId(UUID channelId);
+
+  Message update(UUID messageId, MessageUpdateRequest request);
+
+  void delete(UUID messageId);
+}
