@@ -1,0 +1,21 @@
+package com.sprint.mission.discodeit.mapper;
+
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.response.LoginResponseDto;
+import com.sprint.mission.discodeit.dto.response.UserResponseDto;
+import com.sprint.mission.discodeit.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring", uses = {BinaryContentMapper.class})
+public interface UserMapper {
+
+    UserDto toDto(User user);
+
+    UserDto toDto(User user, boolean online);
+
+    UserResponseDto toResponseDto(UserDto userDto);
+
+    @Mapping(source = "id", target = "userId")
+    LoginResponseDto toLoginResponseDto(UserDto userDto);
+}

@@ -1,48 +1,52 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serial;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
-public class Message extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private String content;
-    private User user;
-    private Channel channel;
+@Getter
+@Setter
+@Entity
+@Table(name = "MESSAGES")
+@RequiredArgsConstructor
+public class Message extends BaseUpdatableEntity{
 
-    public Message(String content, User user, Channel channel) {
-        super();
-        this.content = content;
-        this.user = user;
-        this.channel = channel;
+  @Column(nullable = false)
+  private String content;
+
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @JoinColumn(name = "CHANNEL_ID", nullable = false)
+  private Channel channel;
+
+  @ManyToOne(fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
+  @JoinColumn(name = "USER_ID", nullable = false)
+  private User author;
+
+  @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<BinaryContent> attachmentIds;
+
+  public Message(String content, Channel channel, User author, List<BinaryContent> attachmentIds) {
+    this.content = content;
+    this.channel = channel;
+    this.author = author;
+    this.attachmentIds = attachmentIds;
+
+  }
+  public void update(String newContent) {
+    boolean anyValueUpdated = false;
+    if (newContent != null && !newContent.equals(this.content)) {
+      this.content = newContent;
+      anyValueUpdated = true;
     }
 
-    public String getContent() {
-        return content;
+    if (anyValueUpdated) {
+      this.setUpdatedAt(Instant.now());
     }
-
-    public void addUser(User user){
-        this.user = user;
-    }
-
-    public void deleteUser(User user){
-        this.user = user;
-    }
-
-    public void addChannel(Channel channel){
-        this.channel = channel;
-    }
-
-    public void deleteChannel(Channel channel){
-        this.channel = channel;
-    }
-
-    public void updateContent(String newContent){
-        this.content = newContent;
-        updateTimeStamp();
-    }
-
+  }
 }

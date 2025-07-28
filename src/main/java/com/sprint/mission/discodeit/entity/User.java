@@ -1,69 +1,62 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class User extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private String username;
-    private final List<Message> messages;
-    private final List<Channel> channels;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
 
-    public User(String name) {
-        super();
-        this.username = name;
+@Getter
+@Setter
+@Entity
+@Table(name = "USERS")
+@RequiredArgsConstructor
+public class User extends BaseUpdatableEntity{
 
-        this.messages = new ArrayList<Message>();
-        this.channels = new ArrayList<Channel>();
+  @Column(nullable = false)
+  private String username;
+  @Column(nullable = false)
+  private String email;
+  @Column(nullable = false)
+  private String password;
+
+  @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "profile_id")
+  private BinaryContent profile;     // BinaryContent
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private UserStatus userStatus;
+
+  public User(String username, String email, String password, BinaryContent profile) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+  }
+
+  public void update(String newUsername, String newEmail, String newPassword, BinaryContent newProfileId) {
+    boolean anyValueUpdated = false;
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
+      anyValueUpdated = true;
+    }
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
+      anyValueUpdated = true;
+    }
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
+      anyValueUpdated = true;
+    }
+    if (newProfileId != null && !newProfileId.equals(this.profile)) {
+      this.profile = newProfileId;
+      anyValueUpdated = true;
     }
 
-    public String getUsername() {
-        return username;
+    if (anyValueUpdated) {
+      this.setUpdatedAt(Instant.now());
     }
-
-    public void updateName(String userName){
-        this.username = userName;
-    }
-
-    //유저의 Message 목록에 추가
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addUser(this);
-        }
-    }
-
-    //유저의 Channel 목록에 추가
-    public void addChannel(Channel channel){
-        if(!channels.contains(channel)) {
-            channels.add(channel);
-            channel.addUser(this);
-        }
-    }
-
-    public void deleteChannel(Channel channel){
-        if(!channels.contains(channel)){
-            channels.remove(channel);
-            channel.deleteUser(this);
-        }
-    }
-
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.remove(message);
-            message.deleteUser(this);
-        }
-    }
-    public List<Channel> getChannels(){
-        return channels;
-    }
-
-    public List<Message> getMessages(){
-        return messages;
-    }
+  }
 }

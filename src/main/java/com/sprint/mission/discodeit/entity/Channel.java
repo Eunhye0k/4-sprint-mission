@@ -1,70 +1,53 @@
 package com.sprint.mission.discodeit.entity;
-import java.io.Serial;
+
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CurrentTimestamp;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
-public class Channel extends BaseEntity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private String title;
-    private final List<Message> messages;
-    private final List<User> users;
+@Getter
+@Setter
+@Entity
+@Table(name = "CHANNELS")
+@RequiredArgsConstructor
+public class Channel extends BaseUpdatableEntity{
 
-    public Channel(String channel) {
-        super();
-        this.title = channel;
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private ChannelType type;
+  @Column(nullable = false)
+  private String name;
+  @Column(nullable = false)
+  private String description;
 
-        this.messages = new ArrayList<>();
-        this.users = new ArrayList<>();
-    }
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
 
-    public List<User> getUsers() {
-        return users;
-    }
 
-    public String getChannel() {
-        return title;
-    }
 
-    public void updateChannel(String updateChannel){
-        this.title = updateChannel;
-        updateTimeStamp();
+  public void update(String newName, String newDescription) {
+    boolean anyValueUpdated = false;
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
+      anyValueUpdated = true;
     }
-
-    public void addUser(User user){
-        if(!users.contains(user)) {
-            users.add(user);
-            user.addChannel(this);
-        }
-    }
-    public void addMessage(Message message){
-        if(!messages.contains(message)) {
-            messages.add(message);
-            message.addChannel(this);
-        }
-    }
-    public void deleteMessage(Message message){
-        if(!messages.contains(message)){
-            messages.remove(message);
-            message.deleteChannel(this);
-        }
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
+      anyValueUpdated = true;
     }
 
-    public void deleteUser(User user){
-        if(!users.contains(user)){
-            users.remove(user);
-            user.deleteChannel(this);
-        }
+    if (anyValueUpdated) {
+      this.setUpdatedAt(Instant.now());
     }
-
-    public List<Message> getMessages(){
-        return messages;
-    }
-
-    @Override
-    public UUID getId(){
-        return super.getId();
-    }
+  }
 }
