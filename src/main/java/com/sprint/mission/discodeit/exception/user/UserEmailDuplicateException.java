@@ -6,6 +6,6 @@ import java.util.Map;
 public class UserEmailDuplicateException extends UserException {
 
   public UserEmailDuplicateException(String email) {
-    super(ErrorCode.DUPLICATE_EMAIL, Map.of("email", email));
+    super(ErrorCode.DUPLICATE_EMAIL, (Throwable) Map.of("email", email));
   }
 }
