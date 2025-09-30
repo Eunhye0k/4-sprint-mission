@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,11 +31,13 @@ public class SecurityConfig {
   private final LoginSuccessHandler loginSuccessHandler;
 
   @Bean
-  public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain (HttpSecurity http,
+      LoginFailureHandler loginFailureHandler) throws Exception {
 
     http
         .formLogin(login -> login.loginProcessingUrl("/api/auth/login")
-            .successHandler(loginSuccessHandler))
+            .successHandler(loginSuccessHandler)
+            .failureHandler(loginFailureHandler))
         .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
         .authorizeHttpRequests(auth ->auth.anyRequest().authenticated());
