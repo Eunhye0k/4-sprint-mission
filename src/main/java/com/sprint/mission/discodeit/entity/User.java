@@ -5,11 +5,15 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +22,8 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class User extends BaseUpdatableEntity {
 
   @Column(length = 50, nullable = false, unique = true)
@@ -33,6 +39,9 @@ public class User extends BaseUpdatableEntity {
   @Setter(AccessLevel.PROTECTED)
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
+
+  @Enumerated(EnumType.STRING)
+  private Role role;
 
   public User(String username, String email, String password, BinaryContent profile) {
     this.username = username;
@@ -55,5 +64,8 @@ public class User extends BaseUpdatableEntity {
     if (newProfile != null) {
       this.profile = newProfile;
     }
+  }
+  public void updateRole(Role role){
+    this.role = role;
   }
 }

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -20,5 +21,18 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+
+  @Override
+  public UserDto updateUserRole(RoleUpdateRequest roleUpdateRequest) {
+    log.debug("유저 권한 수정 시작");
+
+    User userId = userRepository.findById(roleUpdateRequest
+        .userId()).orElseThrow(() -> new UserNotFoundException());
+
+    userId.updateRole(roleUpdateRequest.newRole());
+    log.debug("유저 권한 수정 완료");
+    return userMapper.toDto(userId);
+
+  }
 
 }

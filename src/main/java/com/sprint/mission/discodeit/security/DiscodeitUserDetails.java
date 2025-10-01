@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.security;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
@@ -19,7 +20,11 @@ public class DiscodeitUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    if(userDto.role() != null){
+      authorities.add(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+    }
+        return authorities;
   }
 
   @Override
