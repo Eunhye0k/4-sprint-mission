@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,6 +34,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableWebSecurity(debug = true )
 @RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
   private final LoginSuccessHandler loginSuccessHandler;
@@ -62,15 +64,33 @@ public class SecurityConfig {
             .deleteCookies("JSESSIONID"))
 
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/index.html", "/assets/**", "/css/**", "/js/**", "/api/auth/**", "/api/users").permitAll()
+            .requestMatchers("/",
+                "/index.html",
+                "/assets/**",
+                "/css/**",
+                "/js/**",
+                "/api/auth/**",
+                "/api/users"
+            ).permitAll()
             .anyRequest().authenticated()
         )
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint((request,
+                response,
+                authException) -> { response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+              response.getWriter().write("인증이 필요합니다.");
+            })
+            .accessDeniedHandler((request,
+                response,
+                accessDeniedException) ->  { response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("권한이 없습니다.");
+            }))
+
         .userDetailsService(userDetailsService)
     ;
 
     return http.build();
   }
-
 
   static class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 

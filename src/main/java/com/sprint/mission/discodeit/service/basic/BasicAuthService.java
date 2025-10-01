@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class BasicAuthService implements AuthService {
   private final UserMapper userMapper;
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public UserDto updateUserRole(RoleUpdateRequest roleUpdateRequest) {
     log.debug("유저 권한 수정 시작");
 
