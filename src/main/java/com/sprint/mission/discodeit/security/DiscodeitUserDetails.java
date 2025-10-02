@@ -34,7 +34,7 @@ public class DiscodeitUserDetails implements UserDetails {
 
   @Override
   public String getUsername() {
-    return userDto.username();
+    return userDto.email();
   }
 
   @Override
@@ -55,5 +55,19 @@ public class DiscodeitUserDetails implements UserDetails {
   @Override
   public boolean isEnabled() {
     return UserDetails.super.isEnabled();
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DiscodeitUserDetails)) return false;
+    DiscodeitUserDetails that = (DiscodeitUserDetails) o;
+    return this.getUsername().equals(that.getUsername());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.getUsername().hashCode();
   }
 }
