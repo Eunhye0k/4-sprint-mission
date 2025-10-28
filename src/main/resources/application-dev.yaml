@@ -25,8 +25,3 @@ management:
   info:
     env:
       enabled: true
-discodeit:
-  admin:
-    username: admin
-    email: admin@admin.com
-    password: 1234

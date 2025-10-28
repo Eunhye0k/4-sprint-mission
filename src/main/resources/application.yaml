@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
     open-in-view: false
   profiles:
     active:
@@ -21,10 +21,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
+  observations:
+    annotations:
+      enabled: true
 
 info:
   name: Discodeit
@@ -45,6 +48,15 @@ info:
     multipart:
       max-file-size: ${spring.servlet.multipart.maxFileSize}
       max-request-size: ${spring.servlet.multipart.maxRequestSize}
+      show-sql: true
+    cache:
+      type: caffeine
+      caffeine:
+        spc : >
+          maximumSize=100,
+          expireAfterAccess=600s,
+          recordStats
+
 
 discodeit:
   storage:
@@ -58,14 +70,17 @@ discodeit:
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
   admin:
-    username: ${DISCODEIT_ADMIN_USERNAME}
-    email: ${DISCODEIT_ADMIN_EMAIL}
-    password: ${DISCODEIT_ADMIN_PASSWORD}
+    username: ${DISCODEIT_ADMIN_USERNAME:admin}
+    email: ${DISCODEIT_ADMIN_EMAIL:admin@admin.com}
+    password: ${DISCODEIT_ADMIN_PASSWORD:admin123}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
 
 logging:
   level:
     root: info
-jwt:
-  key: 87aslkdjaosdjasdjo879nfiownofwef987wefmklsndfoery978sdflhsdfower978
-  access-token-expiration-minutes: 30
-  refresh-token-expiration-minutes: 420

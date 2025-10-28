@@ -19,5 +19,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       + "LEFT JOIN FETCH u.profile")
   List<User> findAllWithProfile();
 
-  Optional<User> findByEmail(String email);
 }
